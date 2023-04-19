@@ -1,0 +1,295 @@
+\documentclass[10pt,fleqn]{article}
+
+\usepackage[russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphics}
+\usepackage{epsfig}
+\usepackage{bm}
+\usepackage[colorlinks,urlcolor=blue]{hyperref}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{verbatim}
+\usepackage{mdframed}
+\usepackage{dirtree}
+\usepackage{indentfirst}
+\usepackage{url}
+
+\definecolor{codegray}{gray}{0.9}
+\newcommand{\code}[1]{%
+  \begingroup\setlength{\fboxsep}{1pt}%
+  \colorbox{codegray}{\texttt{\hspace*{2pt}\vphantom{Ay}#1\hspace*{2pt}}}%
+  \endgroup
+}
+% mdinlinecode command for including code snippets inline
+% (fake verbatim, so all special character should be escaped,
+% or textmode equivalents of special characters should be used)
+\definecolor{mdinlinecodeboxframecolor}{HTML}{DDDDDD}
+\definecolor{mdinlinecodeboxbackgroundcolor}{HTML}{F8F8F8}
+\newcommand{\mdinlinecode}[1]{%
+    \begin{tikzpicture}[baseline=0ex]%
+        \node[anchor=base,%
+            text height=0.9em,%
+            text depth=0.9ex,%
+            inner ysep=0pt,%
+            draw=mdinlinecodeboxframecolor,%
+            fill=mdinlinecodeboxbackgroundcolor,%
+            rounded corners=1.5pt] at (0,0) {\small\texttt{#1}};%
+    \end{tikzpicture}%
+}
+
+\newmdenv[font=\footnotesize,%
+linewidth=0.4pt,%
+roundcorner=2pt,%
+linecolor=mdinlinecodeboxframecolor,%
+backgroundcolor=mdinlinecodeboxbackgroundcolor,%
+settings={\setlength{\parindent}{0pt}}]{mdcdblk}
+\newenvironment{mdcodeblock}{\endgraf\verbatim}{\endverbatim}
+\BeforeBeginEnvironment{mdcodeblock}{\begin{mdcdblk}}
+\AfterEndEnvironment{mdcodeblock}{\end{mdcdblk}}
+
+\textheight=26cm % высота текста
+\textwidth=18cm % ширина текста
+\oddsidemargin=-1cm % отступ от левого края
+\topmargin=-3cm % отступ от верхнего края
+\sloppy
+
+\newcounter{example}
+
+%-- Обозначение вектора жирным символом
+\def\vec#1{\mathchoice{\mbox{\boldmath$\displaystyle#1$}}
+{\mbox{\boldmath$\textstyle#1$}} {\mbox{\boldmath$\scriptstyle#1$}} {\mbox{\boldmath$\scriptscriptstyle#1$}}}
+
+\DeclareMathOperator{\B}{Bin}
+\DeclareMathOperator{\Ps}{Poiss}
+\DeclareMathOperator{\R}{Unif}
+\DeclareMathOperator{\sign}{\mathrm{sign}}
+\DeclareMathOperator{\softmax}{\mathrm{softmax}}
+\DeclareMathOperator{\loss}{\mathcal{L}}
+
+\pagestyle{empty}
+
+
+\begin{document}
+
+\begin{center}
+    \begin{tabular}{|p{17.5cm}|}
+        \hline
+        \textbf{Высшая Школа Экономики. ФКН}\\
+        \begin{center} \Large Контрольная работа. \end{center}\\
+        \textbf{"DS-09. Промышленное машинное обучение на Spark"}\\
+        \hline
+    \end{tabular}
+\end{center}
+
+\
+
+\begin{tabbing}
+    Начало выполнения задания: 19 апреля 2023 года, 17:00.\\
+    Жёсткий Дедлайн: \textcolor{red}{\bf 04 мая 2023 года, 23:59.}
+\end{tabbing}
+
+\begin{abstract}
+    Вам предлагается решить $10$ задач с использованием Spark. Описание каждой задачи и формат входных данных указаны ниже. Решения задач необходимо оформить в виде Jupyter ноутбука. Задача считается решённой при выполнении следующих условий:
+    \begin{itemize}
+        \item Приведён правильный код для решения задачи
+        \item Продемонстрирована корректность работы кода на примере из условия
+        \item Было придумано два нетривиальных и различных примера входных данных и продемонстрирована корректность работы кода на данных примерах 
+        \item Примеры оформлены в виде \mdinlinecode{pyspark.sql.DataFrame}
+        \item Решение использует только один \textbf{action} — \mdinlinecode{.toPandas} для отображения финального результата
+        \item Решение использует только библиотеку \mdinlinecode{pyspark}
+        \item В решении не используются SQL запросы (например, метод \mdinlinecode{.sql} или \mdinlinecode{.select} с SQL выражением) кроме как для операции \textbf{unpivot}
+    \end{itemize}
+
+    Порядок строк в ответе не важен, если явно не указано иное.
+
+    В качестве подсказки для каждой задачи указана ссылка на аналогичную задачу с решением через SQL запросы.
+
+    Решение в виде ноутбука с названием \mdinlinecode{[Exam][ФИО].ipynb} нужно отправить на почту \href{nakhodnovms@my.msu.ru}{nakhodnovms@my.msu.ru} с темой письма \mdinlinecode{[HSE Spark 2022][Контрольная Работа][ФИО]}.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+
+\begin{section}{\href{https://leetcode.com/problems/classes-more-than-5-students/}{Classes More Than 5 Students}}
+
+Есть таблица курсов с колонками: студент и предмет. Перечислите все предметы, которым обучается не менее $5$ человек.
+
+\begin{figure}[!h]
+    \centering
+    \begin{tabular}{ccc}
+        \textbf{INPUT} & & \textbf{OUTPUT} \\
+        & & \\
+        \input{examples/01_input.tex} & $\Longrightarrow$ & \input{examples/01_output.tex} \\
+     \end{tabular}
+     \caption{Пример к задаче 1. \label{fig:task_01}}
+\end{figure}
+
+\end{section}
+
+
+\begin{section}{\href{https://leetcode.com/problems/second-highest-salary/}{Second Highest Salary}}
+
+Определите значение второй по величине зарплаты из таблицы с зарплатами сотрудников. Если второй по величине заработной платы нет, запрос
+должен вернуть строку \mdinlinecode{"Missing"}.
+
+\begin{figure}[!h]
+    \centering
+    \begin{tabular}{ccc}
+        \textbf{INPUT} & & \textbf{OUTPUT} \\
+        & & \\
+        \input{examples/02.1_input.tex} & $\Longrightarrow$ & \input{examples/02.1_output.tex} \\
+        & & \\
+        \input{examples/02.2_input.tex} & $\Longrightarrow$ & \input{examples/02.2_output.tex} \\
+     \end{tabular}
+     \caption{Пример к задаче 2. \label{fig:task_02}}
+\end{figure}
+
+\end{section}
+
+
+\begin{section}{\href{https://leetcode.com/problems/rising-temperature/}{Rising Temperature}}
+
+В таблице содержится информация о температуре в определенный день. Найдите идентификаторы всех дат с более высокой температурой по сравнению с предыдущим ("вчерашним") днём.
+
+\begin{figure}[!h]
+    \centering
+    \begin{tabular}{ccc}
+        \textbf{INPUT} & & \textbf{OUTPUT} \\
+        & & \\
+        \input{examples/03_input.tex} & $\Longrightarrow$ & \input{examples/03_output.tex} \\
+     \end{tabular}
+     \caption{Пример к задаче 3. \label{fig:task_03}}
+\end{figure}
+
+\end{section}
+
+\newpage
+
+\begin{section}{\href{https://leetcode.com/problems/duplicate-emails/}{Duplicate Emails}}
+
+Удалите из таблицы с адресами электронной почты повторяющиеся адреса, оставив только уникальные, которые соответствуют наименьшему идентификатору.
+
+    \begin{figure}[!h]
+        \centering
+        \begin{tabular}{ccc}
+            \textbf{INPUT} & & \textbf{OUTPUT} \\
+            & & \\
+            \input{examples/04_input.tex} & $\Longrightarrow$ & \input{examples/04_output.tex} \\
+         \end{tabular}
+         \caption{Пример к задаче 4. \label{fig:task_04}}
+    \end{figure}
+
+\end{section}
+
+
+\begin{section}{\href{https://leetcode.com/problems/customers-who-never-order/}{Customers Who Never Order}}
+
+По таблицам с информацией о клиентах и их заказах определите имена клиентов, которые ничего не заказывали.
+
+\begin{figure}[!h]
+    \centering
+    \begin{tabular}{ccc}
+        \textbf{INPUT} & & \textbf{OUTPUT} \\
+        & & \\
+        \input{examples/05.1_input.tex} &  &  \\
+         & $\Longrightarrow$ & \input{examples/05_output.tex} \\
+        \input{examples/05.2_input.tex} &  &  \\
+     \end{tabular}
+     \caption{Пример к задаче 5. \label{fig:task_05}}
+\end{figure}
+
+\end{section}
+
+
+\begin{section}{\href{https://leetcode.com/problems/employees-earning-more-than-their-managers/}{Employees Earning More Than Their Managers}}
+
+Таблица содержит информацию о всех сотрудниках, включая их руководителей. У каждого сотрудника есть идентификатор, а также столбец с идентификатором их руководителя. Определите всех сотрудников, которые
+зарабатывают больше, чем их руководитель.
+
+    \begin{figure}[!h]
+        \centering
+        \begin{tabular}{ccc}
+            \textbf{INPUT} & & \textbf{OUTPUT} \\
+            & & \\
+            \input{examples/06_input.tex} & $\Longrightarrow$ & \input{examples/06_output.tex} \\
+         \end{tabular}
+         \caption{Пример к задаче 6. \label{fig:task_06}}
+    \end{figure}
+    
+\end{section}
+
+\newpage
+\begin{section}{\href{https://leetcode.com/problems/combine-two-tables/}{Combine Two Tables}}
+
+Объедините две таблицы так, чтобы определить поля \mdinlinecode{FirstName, LastName, City, State} для каждого человека в первой входной таблице.
+
+    \begin{figure}[!htb]
+        \centering
+        \begin{tabular}{ccc}
+            \textbf{INPUT} & & \textbf{OUTPUT} \\
+            & & \\
+            \input{examples/07.1_input.tex} &  &  \\
+             & $\Longrightarrow$ & \input{examples/07_output.tex} \\
+            \input{examples/07.2_input.tex} &  &  \\
+         \end{tabular}
+         \caption{Пример к задаче 7. \label{fig:task_07}}
+    \end{figure}
+
+\end{section}
+
+
+\begin{section}{\href{https://leetcode.com/problems/not-boring-movies/}{Not Boring Movies}}
+    В городе $X$ открылся новый кинотеатр. Для каждого фильма в прокате известно его описание и рейтинг. Определите все фильмы с нечётными идентификаторами и описанием, которое не содержит подстроку \mdinlinecode{"boring"}. Выведите результат, отсортировав получившиеся фильмы по рейтингу. 
+
+    \begin{figure}[!h]
+        \centering
+        \begin{tabular}{ccc}
+            \textbf{INPUT} & & \textbf{OUTPUT} \\
+            & & \\
+            \input{examples/08_input.tex} & $\Longrightarrow$ & \input{examples/08_output.tex} \\
+         \end{tabular}
+         \caption{Пример к задаче 8. \label{fig:task_08}}
+    \end{figure}
+\end{section}
+
+
+\begin{section}{\href{https://leetcode.com/problems/swap-salary/}{Swap Salary}}
+
+    Преобразуйте исходную таблицу, поменяв во всех записях пол сотрудников на противоположный ($\text{m} \iff \text{f}$).
+
+    \begin{figure}[!h]
+        \centering
+        \begin{tabular}{ccc}
+            \textbf{INPUT} & & \textbf{OUTPUT} \\
+            & & \\
+            \input{examples/09_input.tex} & $\Longrightarrow$ & \input{examples/09_output.tex} \\
+         \end{tabular}
+         \caption{Пример к задаче 9. \label{fig:task_09}}
+    \end{figure}
+\end{section}
+
+\newpage
+\begin{section}{\href{https://leetcode.com/problems/big-countries/}{Big Countries}}
+
+Будем называть страну \textit{великой}, если ее площадь превышает $3$ миллиона квадратных километров или население превышает $25$ миллионов.
+
+Выведите названия, население и площадь для всех \textit{великих} стран из входной таблицы.
+
+    \begin{figure}[!h]
+        \centering
+        \begin{tabular}{ccc}
+            \textbf{INPUT} & & \textbf{OUTPUT} \\
+            & & \\
+            \input{examples/10_input.tex} & $\Longrightarrow$ & \input{examples/10_output.tex} \\
+         \end{tabular}
+         \caption{Пример к задаче 10. \label{fig:task_10}}
+    \end{figure}
+\end{section}
+
+
+\end{document}
