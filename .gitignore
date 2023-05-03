@@ -136,3 +136,6 @@ dmypy.json
 *.out
 *.synctex.gz
 *.toc
+
+\[SOLVED\]*.ipynb
+Проверка.md
